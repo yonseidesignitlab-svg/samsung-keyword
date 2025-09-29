@@ -5,6 +5,7 @@ import networkx as nx
 import requests
 import json
 import openai
+from google import genai
 
 from streamlit_plotly_events import plotly_events
 
@@ -13,7 +14,7 @@ from streamlit_plotly_events import plotly_events
 # ----------------------------------------------------------------------
 # 주의: API 키를 코드에 직접 하드코딩하는 것은 보안상 위험합니다.
 # 실제 운영 환경에서는 st.secrets 또는 환경 변수를 사용하세요.
-OPENAI_API_KEY = st.secrets.get("OPENAI_ApI_KEY") 
+GEMINI_API_KEY = st.secrets.get("GEMINI_ApI_KEY") 
 SERPER_API_KEY = st.secrets.get("SERPER_ApI_KEY")
 FILE_NAME = "키워드_최종_종합트렌드_강화로직.csv"
 
@@ -53,18 +54,19 @@ def load_data():
 df = load_data()
 
 # ----------------------------------------------------------------------
-# LLM (Chat GPT) 정의 생성
+# LLM (Gemini) 정의 생성
 # ----------------------------------------------------------------------
 def generate_definition_with_llm(keyword, _log_cb=lambda x: None):
     """
-    1. 정의: Chat GPT로 생성 (실제 OpenAI API 호출).
+    1. 정의: Gemini API로 생성 (실제 Google GenAI API 호출).
     """
-    if not OPENAI_API_KEY:
-        msg = "[오류] OPENAI_API_KEY가 설정되지 않았거나 유효하지 않습니다."
+    if not GEMINI_API_KEY: # ✨ 수정
+        msg = "[오류] GEMINI_API_KEY가 설정되지 않았거나 유효하지 않습니다." # ✨ 수정
         return msg
 
     try:
-        client = openai.OpenAI(api_key=OPENAI_API_KEY)
+        # client = openai.OpenAI(api_key=OPENAI_API_KEY) # 기존 코드
+        client = genai.Client(api_key=GEMINI_API_KEY) # ✨ 수정: Gemini 클라이언트 초기화
 
         system_prompt = (
             "당신은 건축, 도시, 공간 디자인 분야의 최신 트렌드 전문가입니다. "
@@ -72,30 +74,32 @@ def generate_definition_with_llm(keyword, _log_cb=lambda x: None):
         )
         user_prompt = f"키워드 '{keyword}'에 대한 정의를 작성해 주세요."
 
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            temperature=0.3,
-            max_tokens=300
+        # response = client.chat.completions.create(...) # 기존 코드 (복잡)
+        response = client.models.generate_content( # ✨ 수정: generate_content 사용
+            model="gemini-2.5-flash", # ✨ 수정: Gemini 모델로 변경
+            contents=user_prompt,
+            config=genai.types.GenerateContentConfig(
+                system_instruction=system_prompt, # ✨ 수정: system_instruction 사용
+                temperature=0.3,
+                max_output_tokens=300 # max_tokens 대신 max_output_tokens 사용
+            )
         )
         
-        result = response.choices[0].message.content.strip()
+        # result = response.choices[0].message.content.strip() # 기존 코드
+        result = response.text.strip() # ✨ 수정: response.text 사용
 
         if not result:
-             raise ValueError("LLM이 정의를 생성하지 못했습니다.")
-             
+            raise ValueError("LLM이 정의를 생성하지 못했습니다.")
+            
         return result
         
-    except openai.AuthenticationError:
-        msg = "[OpenAI 오류] API 키가 유효하지 않거나 권한이 없습니다. 키를 확인하세요."
+    # except openai.AuthenticationError: # 기존 코드
+    except genai.errors.APIError as e: # ✨ 수정: Gemini API 오류 처리
+        msg = f"[Gemini API 오류] 키가 유효하지 않거나 요청에 실패했습니다. 키를 확인하세요: {e}"
         return msg
     except Exception as e:
         msg = f"[LLM 처리 오류: {e}]"
         return "LLM 정의 생성에 실패했습니다: " + str(e)
-
 # ----------------------------------------------------------------------
 # Serper
 # ----------------------------------------------------------------------
@@ -462,4 +466,5 @@ def run():
             st.info("그래프에서 키워드를 클릭해 주세요.")
 
 if __name__ == "__main__":
+
     run()
