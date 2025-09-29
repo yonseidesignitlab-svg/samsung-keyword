@@ -1,0 +1,8 @@
+# requirements.txt
+streamlit
+pandas
+plotly
+networkx
+requests
+openai
+streamlit-plotly-events
