@@ -14,8 +14,8 @@ from streamlit_plotly_events import plotly_events
 # ----------------------------------------------------------------------
 # 주의: API 키를 코드에 직접 하드코딩하는 것은 보안상 위험합니다.
 # 실제 운영 환경에서는 st.secrets 또는 환경 변수를 사용하세요.
-GEMINI_API_KEY = st.secrets.get("GEMINI_ApI_KEY") 
-SERPER_API_KEY = st.secrets.get("SERPER_ApI_KEY")
+GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY") 
+SERPER_API_KEY = st.secrets.get("SERPER_API_KEY")
 FILE_NAME = "키워드_최종_종합트렌드_강화로직.csv"
 
 CLASSIFICATION_CRITERIA = ["접근방식 기준", "건축설계단계", "공간적 스케일"]
@@ -478,6 +478,7 @@ def run():
 if __name__ == "__main__":
 
     run()
+
 
 
 
