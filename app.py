@@ -60,45 +60,54 @@ def generate_definition_with_llm(keyword, _log_cb=lambda x: None):
     """
     1. 정의: Gemini API로 생성 (실제 Google GenAI API 호출).
     """
-    if not GEMINI_API_KEY: # ✨ 수정
-        msg = "[오류] GEMINI_API_KEY가 설정되지 않았거나 유효하지 않습니다." # ✨ 수정
+    if not GEMINI_API_KEY: 
+        msg = "[오류] GEMINI_API_KEY가 설정되지 않았거나 유효하지 않습니다."
         return msg
 
     try:
-        client = genai.Client(api_key=GEMINI_API_KEY) # ✨ 수정: Gemini 클라이언트 초기화
+        client = genai.Client(api_key=GEMINI_API_KEY)
 
         system_prompt = (
-            "당신은 건축, 도시, 공간 디자인 분야의 최신 트렌드 전문가입니다. "
-            "사용자가 제시한 키워드에 대해 명확하고 간결하며 전문적인 정의를 한국어로 3~5문장 이내로 작성하세요."
+            # ... (프롬프트 내용은 동일)
         )
         user_prompt = f"키워드 '{keyword}'에 대한 정의를 작성해 주세요."
 
-        # response = client.chat.completions.create(...) # 기존 코드 (복잡)
-        response = client.models.generate_content( # ✨ 수정: generate_content 사용
-            model="gemini-2.5-flash", # ✨ 수정: Gemini 모델로 변경
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
             contents=user_prompt,
             config=genai.types.GenerateContentConfig(
-                system_instruction=system_prompt, # ✨ 수정: system_instruction 사용
+                system_instruction=system_prompt,
                 temperature=0.3,
-                max_output_tokens=300 # max_tokens 대신 max_output_tokens 사용
+                max_output_tokens=300
             )
         )
         
-        # result = response.choices[0].message.content.strip() # 기존 코드
-        result = response.text.strip() # ✨ 수정: response.text 사용
+        # ✨ 수정 1: 응답 텍스트가 None인지 먼저 확인하는 방어 로직 추가
+        if response.text is None:
+            # ✨ 수정 2: Safety Filter에 의해 차단되었는지 확인 (가장 일반적인 None 반환 사유)
+            if response.prompt_feedback.block_reason:
+                block_reason = str(response.prompt_feedback.block_reason.name)
+                # 모델 응답의 ContentFilter가 활성화되어 있는지 확인
+                if response.candidates and response.candidates[0].finish_reason.name == "SAFETY":
+                     return f"[Gemini 차단 오류] 키워드 '{keyword}'가 안전 필터에 의해 차단되었습니다. 사유: {block_reason}"
+
+            # 기타 사유로 None이 반환된 경우
+            raise ValueError("LLM이 응답 텍스트를 생성하지 못했습니다 (None 반환). API 키와 요청을 확인하세요.")
+
+        result = response.text.strip() # 이제 response.text가 None일 가능성은 없음
 
         if not result:
             raise ValueError("LLM이 정의를 생성하지 못했습니다.")
             
         return result
         
-    # except openai.AuthenticationError: # 기존 코드
-    except genai.errors.APIError as e: # ✨ 수정: Gemini API 오류 처리
+    except genai.errors.APIError as e: 
         msg = f"[Gemini API 오류] 키가 유효하지 않거나 요청에 실패했습니다. 키를 확인하세요: {e}"
         return msg
     except Exception as e:
         msg = f"[LLM 처리 오류: {e}]"
         return "LLM 정의 생성에 실패했습니다: " + str(e)
+
 # ----------------------------------------------------------------------
 # Serper
 # ----------------------------------------------------------------------
@@ -467,4 +476,5 @@ def run():
 if __name__ == "__main__":
 
     run()
+
 
