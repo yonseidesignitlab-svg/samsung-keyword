@@ -65,7 +65,6 @@ def generate_definition_with_llm(keyword, _log_cb=lambda x: None):
         return msg
 
     try:
-        # client = openai.OpenAI(api_key=OPENAI_API_KEY) # 기존 코드
         client = genai.Client(api_key=GEMINI_API_KEY) # ✨ 수정: Gemini 클라이언트 초기화
 
         system_prompt = (
@@ -386,8 +385,8 @@ def run():
     st.caption("그래프에서 **키워드**를 클릭하면 아래에 정의/뉴스/논문이 표시됩니다.")
 
     # 키워드/API 설정 가이드 (하드코딩된 키의 경우 경고는 유지)
-    if not OPENAI_API_KEY or not SERPER_API_KEY:
-        st.error("⚠️ **API 키 설정 필요:** OPENAI_API_KEY 또는 SERPER_API_KEY가 설정되지 않았습니다.")
+    if not GEMINI_API_KEY or not SERPER_API_KEY:
+        st.error("⚠️ **API 키 설정 필요:** GEMINI_API_KEY 또는 SERPER_API_KEY가 설정되지 않았습니다.")
     
     with st.sidebar:
         st.header("🔍 분류 기준")
@@ -468,3 +467,4 @@ def run():
 if __name__ == "__main__":
 
     run()
+
