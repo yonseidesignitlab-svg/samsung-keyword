@@ -5,4 +5,6 @@ plotly
 networkx
 requests
 openai
+google-genai
+
 streamlit-plotly-events
