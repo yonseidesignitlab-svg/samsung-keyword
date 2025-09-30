@@ -217,7 +217,7 @@ def create_keyword_figure(df, classification_criteria, size_criteria, color_base
                     G.add_edge(leader, kw)
 
     # k=0.55 -> k=0.8로 증가시켜 노드 간격을 넓힘
-    pos = nx.spring_layout(G, seed=42, k=0.8, iterations=60)
+    pos = nx.spring_layout(G, seed=42, k=0.7, iterations=60)
     
     all_nodes_sorted = sorted(G.nodes())
 
@@ -478,6 +478,7 @@ def run():
 if __name__ == "__main__":
 
     run()
+
 
 
 
