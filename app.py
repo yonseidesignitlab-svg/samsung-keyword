@@ -456,9 +456,9 @@ def run():
             else:
                  st.success("검색 및 정의 생성 완료")
 
-            t1, t2, t3 = st.tabs(["정의 (Chat GPT)", "최신/인기 뉴스", "학술 논문"])
+            t1, t2, t3 = st.tabs(["정의", "최신/인기 뉴스", "학술 논문"])
             with t1:
-                st.markdown(f"**Chat GPT 생성 정의**\n\n> {definition}")
+                st.markdown(f"**키워드의 정의**\n\n> {definition}")
             with t2:
                 if isinstance(news, list) and news and not is_error:
                     for it in news:
@@ -478,6 +478,7 @@ def run():
 if __name__ == "__main__":
 
     run()
+
 
 
 
