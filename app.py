@@ -5,8 +5,7 @@ import networkx as nx
 import requests
 import json
 import openai
-from google import genai
-
+import google.genai as genai
 from streamlit_plotly_events import plotly_events
 
 # ----------------------------------------------------------------------
@@ -478,6 +477,7 @@ def run():
 if __name__ == "__main__":
 
     run()
+
 
 
 
