@@ -13,8 +13,8 @@ from streamlit_plotly_events import plotly_events
 # ----------------------------------------------------------------------
 # API 키는 더 이상 정의 생성에 사용되지 않지만, Serper는 여전히 사용될 수 있으므로 주석 처리하거나 필요에 따라 유지합니다.
 # GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY") 
-# ERPER_API_KEY = st.secrets.get("SERPER_API_KEY")
-SERPER_API_KEY = "6194f49f9d6b53a4e0e1d1a07654c3737eb9d325"
+SERPER_API_KEY = st.secrets.get("SERPER_API_KEY")
+# SERPER_API_KEY = "6194f49f9d6b53a4e0e1d1a07654c3737eb9d325"
 # GEMINI_API_KEY = "AIzaSyBXBZJZlrQgNk_scamZzeXW30D2_EbI7H8"
 FILE_NAME = "키워드_최종_종합트렌드_강화로직.csv"
 
@@ -458,3 +458,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+
